@@ -93,8 +93,8 @@ namespace Oauthdemo
 
                // The OAuth middleware will send the ClientId, ClientSecret, and the
                // authorization code to the token endpoint, and get an access token in return
-               options.ClientId = "84d4cb06-7fff-4c5f-b215-810d436fe383";
-               options.ClientSecret = "51VbXtGBEH44!ewa";
+               options.ClientId = Configuration["AppID"];
+               options.ClientSecret = Configuration["AppSecret"];
                options.TokenEndpoint = $"https://cloud.uipath.com/identity_/connect/token";
 
                //Below we call the userinfo endpoint to get information about the user

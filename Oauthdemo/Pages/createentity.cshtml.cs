@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Oauthdemo.Models;
@@ -20,10 +21,12 @@ namespace Oauthdemo.Pages
     public class CreatEentityModel : PageModel
     {
         private readonly ILogger<CreatEentityModel> _logger;
+        private readonly IConfiguration _configuration;
 
-        public CreatEentityModel(ILogger<CreatEentityModel> logger)
+        public CreatEentityModel(ILogger<CreatEentityModel> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task OnGetAsync()
@@ -33,7 +36,7 @@ namespace Oauthdemo.Pages
             var request = new HttpRequestMessage
             {
                 Method = new HttpMethod("GET"),
-                RequestUri = new Uri("https://cloud.uipath.com/tam/emea/dataservice_/api/EntityService/OAuthDemo/read", System.UriKind.RelativeOrAbsolute)
+                RequestUri = new Uri($"https://cloud.uipath.com/{_configuration["OrgName"]}/{_configuration["Tenant"]}/dataservice_/api/EntityService/OAuthDemo/read", System.UriKind.RelativeOrAbsolute)
             };
 
             request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
@@ -58,20 +61,20 @@ namespace Oauthdemo.Pages
 
             var httpClient = new HttpClient();
 
-            var body = new Dictionary<string, string>
+            var body = new Dictionary<string, object>
             {
-                {"Id",Guid.NewGuid().ToString()},
+                { "Id",Guid.NewGuid().ToString()},
                 { "Name", this.Name },
                 { "Type", this.Type } ,
                 { "CreatedBy", User.FindFirstValue(ClaimTypes.NameIdentifier) },
-                { "CreateTime", "2021-03-04T10:26:16.993Z" }
+                { "CreateTime", DateTime.UtcNow.ToUniversalTime()}
             };
 
             var request = new HttpRequestMessage
             {
                 Content = new StringContent(JsonConvert.SerializeObject(body, new JsonSerializerSettings())),
                 Method = new HttpMethod("POST"),
-                RequestUri = new Uri("https://cloud.uipath.com/tam/emea/dataservice_/api/EntityService/OAuthDemo/insert", System.UriKind.RelativeOrAbsolute)
+                RequestUri = new Uri($"https://cloud.uipath.com/{_configuration["OrgName"]}/{_configuration["Tenant"]}/dataservice_/api/EntityService/OAuthDemo/insert", System.UriKind.RelativeOrAbsolute)
             };
             request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
             request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
